@@ -1,0 +1,81 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: $serif;
+	font-size: 18px;
+	text-rendering: optimizeLegibility;
+	// @include sm {
+	// 	font-size: 3vw;
+	// }
+	// @include md {
+	// 	font-size: 2vw;
+	// }
+	// @include xl {
+	// 	font-size: 1.5vw;
+	// }
+}
+html[lang="en-US"] {
+	margin-top: 0 !important;
+	padding-top: 32px;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5 {
+	margin: 0;
+	font-weight: normal;
+}
+h1 {
+	@include lgText;
+}
+h2 {
+	@include mdText;
+}
+h3 {
+	@include smText;
+}
+
+a, a:hover, a:active, a:link, a:visited {
+	color: inherit;
+	text-decoration: none;
+}
+
+.screen-reader-text {
+	position: fixed;
+	left: -99999px;
+	bottom: -99999px;
+}
+
+#page {
+	// max-width: 1800px;
+	margin: auto;
+	padding: 1rem;
+}
+
+main {
+	margin: 1rem 0;
+}
+
+main#main {
+	body.article-open & {
+		display: none;
+	}
+}
+
+.back-button {
+	width: 1em;
+	height: 1em;
+	display: inline-block;
+	border: 1px solid $darkest;
+	background: url(./../../images/close.svg);
+	background-size: calc(100% - 4px);
+	background-repeat: no-repeat;
+	background-position: center;
+	&:hover {
+		cursor: pointer;
+	}
+}

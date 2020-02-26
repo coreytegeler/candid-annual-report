@@ -1,0 +1,139 @@
+.block {
+	width: 100%;
+	transition: none;
+	@include md {
+		&.small, &.medium, &.large {
+			width: 50%;
+		}
+	}
+	@include lg {
+		&.small {
+			width: 20%;
+		}
+		&.medium {
+			width: 40%;
+		}
+		&.large {
+			width: 80%;
+		}
+	}
+	&.hide {
+		display: none;
+	}
+	p:not(:last-of-type) {
+		margin: 0 0 1rem 0;
+	}
+}
+.block-inner {
+	width: calc(100% - 1rem);
+	display: table;
+	margin: .5rem;
+	padding: 1rem;
+	border: 1px solid transparent;
+	-webkit-hyphenate-character: '';
+	.white & {
+		background: $lightest;
+	}
+	.black & {
+		background: $darkest;
+		color: $lightest;
+	}
+	.yellow & {
+		background: $yellow;
+	}
+	.border-black & {
+		border-color: $darkest;
+	}
+	.border-yellow & {
+		border-color: $yellow;
+	}
+	.border-dashed & {
+		border-style: dashed;
+	}
+	.border-dotted & {
+		border-style: dotted;
+	}
+	.border-double & {
+		border-style: double;
+		border-width: 3px;
+	}
+	.image & {
+		padding: 0;
+		border-width: 0;
+	}
+	.month-label & {
+		@include mdText;
+		font-family: $sans-serif;
+		font-weight: bold;
+	}
+}
+.block-category {
+	@include xsText;
+	margin-bottom: 1rem;
+	font-family: $mono;
+}
+.block-title {
+	font-weight: bold;
+	.small & {
+		@include smText;
+	}
+	.medium & {
+		@include mdText;
+	}
+	.large & {
+		@include lgText;
+	}
+}
+.block-sub-1 {
+	margin-top: .5rem;
+	@include smText;
+	font-weight: bold;
+}
+.block-sub-2 {
+	margin-top: .5rem;
+	@include xsText;
+	font-weight: bold;
+}
+
+.has-small-font-size {
+	@include xsText;
+}
+.has-normal-font-size {
+	@include smText;
+}
+.has-medium-font-size {
+	@include mdText;
+}
+.has-large-font-size {
+	@include lgText;
+}
+.has-huge-font-size {
+	@include xlText;
+}
+
+
+
+.wp-block-image {
+	margin: 0;
+	* {
+		margin-top: 0;
+		margin-right: 0;
+		margin-bottom: 0;
+		margin-left: 0;
+	}
+	.alignright {
+		width: 30%;
+	}
+}
+
+#cat-block {
+	font-family: $mono;
+	.block-inner {
+		padding: 0 0 5rem 1.5rem;
+	}
+	.back-button {
+		position: absolute;
+		left: .5rem;
+		top: .7rem;
+	}
+}
