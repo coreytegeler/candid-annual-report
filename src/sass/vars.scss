@@ -15,21 +15,26 @@ $yellow: #febe10;
 
 @mixin smText {
 	font-size: 1rem;
-	line-height: 1.2em;
+	line-height: 1.45em;
 }
 
 @mixin mdText {
-	font-size: 1.5rem;
-	line-height: 1.2em;
+	font-size: 1.28rem;
+	line-height: 1.35em;
 }
 
 @mixin lgText {
-	font-size: 2.5rem;
-	line-height: 1em;
+	font-size: 2.25rem;
+	line-height: 1.2em;
 }
 
 @mixin xlText {
-	font-size: 4rem;
+	font-size: 2.78rem;
+	line-height: 1.2em;
+}
+
+@mixin xxlText {
+	font-size: 3rem;
 	line-height: 1.2em;
 }
 
@@ -47,13 +52,34 @@ $yellow: #febe10;
 	}
 }
 @mixin lg {
-	@media (min-width: 992px) {
+	@media (min-width: 1024px) {
 		@content;
 	}
 }
 @mixin xl {
-	@media (min-width: 1200px) {
+	@media (min-width: 1440px) {
 		@content;
+	}
+}
+@mixin xxl {
+	@media (min-width: 1920px) {
+		@content;
+	}
+}
+
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+
+@mixin fadeIn($duration: 500ms, $delay: 0ms) {
+	animation: fadeIn $duration 1 forwards $delay;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
 	}
 }
 
@@ -73,13 +99,13 @@ $candid: 'Candid';
 	font-style: normal;
 }
 
-@font-face {
-	font-family: 'Algebra';
-	src: url('../../fonts/Algebra-Bold.woff2') format('woff2'),
-		url('../../fonts/Algebra-Bold.woff') format('woff');
-	font-weight: bold;
-	font-style: normal;
-}
+// @font-face {
+// 	font-family: 'Algebra';
+// 	src: url('../../fonts/Algebra-Bold.woff2') format('woff2'),
+// 		url('../../fonts/Algebra-Bold.woff') format('woff');
+// 	font-weight: bold;
+// 	font-style: normal;
+// }
 
 @font-face {
 	font-family: 'Akkurat';

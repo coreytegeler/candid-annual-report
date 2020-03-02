@@ -31,7 +31,7 @@ class CatBlock extends React.Component {
 	render() {
 		return(
 			<React.Fragment>
-				<div className="block small" id="cat-block">
+				<div className="block sm-width" id="cat-block">
 					<div className="block-inner">
 						<a href={siteSettings.url.root} onClick={this.clearParams.bind(this)}>
 							<div className="back-button"></div>

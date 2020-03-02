@@ -11,7 +11,6 @@ class Header extends React.Component {
 	}
 
 	componentDidMount() {
-
 	}
 
 	componentDidUpdate(prevProps, prevState, snapshot) {
@@ -73,12 +72,13 @@ class Header extends React.Component {
 				<div id="site-header">
 					<h1 id="site-title">
 						<a href={url.root} onClick={this.props.closeOverlay.bind(this)}>
-							{ title }
+							It's been<br/>
+							a year.
 						</a>
 					</h1>
 					<h2 id="site-tagline">
-						{ tagline }
-						<span className="screen-reader-text">Candid</span>
+						The 2019 annual report<br/>
+						from <span className="screen-reader-text">Candid</span>
 						<span className="candid-logo">.</span>
 					</h2>
 				</div>

@@ -16,7 +16,6 @@ class Page extends React.Component {
 	}
 
 	componentDidMount() {
-		
 		// window.addEventListener("resize", this.handleResize.bind(this));
 	}
 
@@ -45,7 +44,7 @@ class Page extends React.Component {
 	}
 
 	componentWillUnmount() {
-		window.removeEventListener("resize", this.handleResize.bind(this));
+		// window.removeEventListener("resize", this.handleResize.bind(this));
 	}
 
 	handleResize() {
@@ -56,21 +55,26 @@ class Page extends React.Component {
 	}
 
 	getBlocks() {
-		const { post } = this.props;
 		const self = this,
-					req = siteSettings.url.api + "get_blocks?page=" + post.id;
-		fetch(req)
-			.then(function(res) {
-				if (!res.ok) {
-					throw Error(res.statusText);
-				}
-				return res.json();
-			})
-			.then(function(res) {
-				self.setState({
-					blocks: res
+					{ post } = this.props,
+					category = siteSettings.categories[post.post_name];
+		if(category) {
+			const req = siteSettings.url.api + "get_posts?cat=" + category.term_id;
+			console.log(req);
+			fetch(req)
+				.then(function(res) {
+					if (!res.ok) {
+						throw Error(res.statusText);
+					}
+					return res.json();
+				})
+				.then(function(res) {
+					console.log(res);
+					self.setState({
+						blocks: res
+					});
 				});
-			});
+			}
 	}
 
 	renderBlocks() {
@@ -78,49 +82,56 @@ class Page extends React.Component {
 					{ blocks, masonry } = this.state;
 		let blockElems = [],
 				lastMonth = '';
-		blocks.forEach(function(post, i) {
-
-			if(post.date) {
-				const date = new Date(post.date),
-							month = date.getMonth();
-				if(lastMonth !== month) {
-					lastMonth = month;
-					blockElems.push(
-						<Month
-							key={ "month" + i }
-							month={ month }
-							masonry={ masonry } />
-					);
+		if(blocks) {
+			blocks.forEach(function(post, i) {
+				if(post.date) {
+					const date = new Date(post.date),
+								month = date.getMonth();
+					if(lastMonth !== month) {
+						lastMonth = month;
+						blockElems.push(
+							<Month
+								key={ "month" + i }
+								month={ month }
+								masonry={ masonry } />
+						);
+					}
+					
 				}
-				
-			}
 
-			blockElems.push(
-				<Block
-					key={ i }
-					post={ post }
-					masonry={ masonry } />
-			);
-		});
-		return blockElems;
+				blockElems.push(
+					<Block
+						key={ i }
+						post={ post }
+						frozen={ true }
+						masonry={ masonry }
+						openOverlay={self.props.openOverlay.bind(self)} />
+				);
+			});
+			return blockElems;
+		}
 	}
 
 	render() {
 		const { post } = this.props,
-					{ title, slug, id, content } = post;
+					{ post_title, post_name, ID, post_content } = post;
 		return(
-			<div className="overlay">
-				<h3>
-					<a href={ siteSettings.url.root }
-						className="back-button"
-						onClick={this.props.closeOverlay.bind(this)}>
-					</a>
-					{ title ? title.rendered : <div className="filler"></div> }
-				</h3>
-				<main id={slug}>
-					<div className="grid-sizer block small"></div>
-					{ this.renderBlocks() }
-				</main>
+			<div className="overlay page">
+				<article>
+					<header id="overlay-header">
+						<div className="overlay-top">
+							<a href={ siteSettings.url.root }
+								className="back-button"
+								onClick={this.props.closeOverlay.bind(this)}>
+							</a>
+							<h3>{ post_title ? <span>{ post_title }</span> : <div className="filler"></div> }</h3>
+						</div>
+					</header>
+					<main id={ post_name }>
+						<div className="grid-sizer block small"></div>
+						{ this.renderBlocks() }
+					</main>
+				</article>
 			</div>
 		);
 	}

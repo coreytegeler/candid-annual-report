@@ -24,9 +24,10 @@ class App extends React.Component {
 	}
 
 	componentDidMount() {
-		const { current, categories, home_id } = siteSettings;
+		const self = this,
+					{ current, categories, home_id } = siteSettings;
 		this.getBlocks();
-		const main = document.querySelector('#main');
+		const main = document.querySelector('#main-blocks');
 		let masonry = new Masonry( main, {
 			itemSelector: ".block",
 			columnWidth: ".grid-sizer",
@@ -38,8 +39,8 @@ class App extends React.Component {
 		window.addEventListener("resize", this.handleResize.bind(this));
 
 		const catSlugs = Object.keys(categories);
-		this.updateParams([catSlugs[0]]);
-
+		self.updateParams(catSlugs);
+		
 
 		window.onpopstate = (e) => {
 			if(e.state) {
@@ -50,7 +51,7 @@ class App extends React.Component {
 				});
 			}
 		}
-		if(current.id !== home_id) {
+		if(current.ID !== home_id) {	
 			this.openOverlay(current, false);
 		}
 	}
@@ -80,6 +81,12 @@ class App extends React.Component {
 		if(masonry) {
 			masonry.layout();
 		}
+	}
+
+	updateParams(params) {
+		this.setState({
+			params: params
+		});
 	}
 
 	clearParams() {
@@ -113,35 +120,64 @@ class App extends React.Component {
 		let blockElems = [],
 				visibleBlocks = blocks.filter(post => params.indexOf(post.category.slug) > -1);
 				// visibleBlocks = blocks;
-		visibleBlocks.forEach(function(post, i) {
-			if(typeof post === "object") {
-				blockElems.push(
-					<Block
-						key={ i }
-						post={ post }
-						masonry={ masonry }
-						openOverlay={self.openOverlay.bind(self)} />
-				)
-			} else if(params.length == 1) {
-				const param = params[0],
-							cat = siteSettings.categories[param];
-				blockElems.push(
-					<CatBlock
-						key={ i }
-						cat={ cat }
-						masonry={ masonry }
-						clearParams={self.clearParams.bind(self)} />
-				)
-			}
-		} );
 
+		
+		if(params.length == 1) {
+			const param = params[0],
+						cat = siteSettings.categories[param];
+			blockElems.push(
+				<CatBlock
+					key={ 0 }
+					cat={ cat }
+					masonry={ masonry }
+					clearParams={self.clearParams.bind(self)} />
+			);
+		}
+
+
+		if(visibleBlocks) {
+			visibleBlocks.forEach(function(post, i) {
+				if(typeof post === "object") {
+					blockElems.push(
+						<Block
+							key={ i+1 }
+							post={ post }
+							masonry={ masonry }
+							openOverlay={self.openOverlay.bind(self)} />
+					)
+				} else if(params.length == 1) {
+					const param = params[0],
+								cat = siteSettings.categories[param];
+					// blockElems.push(
+					// 	<CatBlock
+					// 		key={ i }
+					// 		cat={ cat }
+					// 		masonry={ masonry }
+					// 		clearParams={self.clearParams.bind(self)} />
+					// )
+				}
+			} );
+		}
 		return blockElems;
 	}
 
-	updateParams(params) {
-		this.setState({
-			params: params
-		});
+	renderOverlay(post) {
+		if(post.post_type === "post") {
+			return(
+				<Post
+					post={ post }
+					openOverlay={ this.openOverlay.bind(this) }
+					closeOverlay={ this.closeOverlay.bind(this) } />
+			);
+		}
+		if(post.post_type === "page") {
+			return(
+				<Page
+					post={ post }
+					openOverlay={ this.openOverlay.bind(this) }
+					closeOverlay={ this.closeOverlay.bind(this) } />
+			);
+		}
 	}
 
 	openOverlay(post, updateHistory = true) {
@@ -169,26 +205,18 @@ class App extends React.Component {
 	}
 
 	render() {
-		const { params, post } = this.state
+		const { params, post } = this.state;
 		return(
 			<React.Fragment>
 				<Header
 					params={ params }
 					closeOverlay={ this.closeOverlay.bind(this) }
 					updateParams={ this.updateParams.bind(this) } />
-				<main id="main">
-					<div className="grid-sizer block small"></div>
+				<main id="main-blocks" className="index">
+					<div className="grid-sizer block sm-width"></div>
 					{ this.renderBlocks() }
 				</main>
-				{ post ?
-					post.type === "post" ?
-						<Post
-							post={ post }
-							closeOverlay={ this.closeOverlay.bind(this) } /> :
-						<Page
-							post={ post }
-							closeOverlay={ this.closeOverlay.bind(this) } />
-				: null}
+				{ post ? this.renderOverlay(post) : null }
 			</React.Fragment>
 		);
 	}

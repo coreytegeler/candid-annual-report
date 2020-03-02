@@ -15,18 +15,41 @@ function candid_2019_scripts() {
 	$url = trailingslashit( home_url() );
 	$path = trailingslashit( parse_url( $url, PHP_URL_PATH ) );
 
-	$cats = get_terms( 'block_category' );
+	// $cats = get_terms( 'block_category' );
+	// $block_cats = array();
+	// foreach( $cats as $cat ) {
+	// 	$block_cats[$cat->slug] = $cat;
+	// }
 
-	$block_cats = array();
+	$cats = get_terms( 'category' );
+	$cat_slugs = array();
 	foreach( $cats as $cat ) {
-		$block_cats[$cat->slug] = $cat;
+		if( $cat->slug !== 'default' ) {
+			$cat_slugs[$cat->slug] = $cat;
+		}
 	}
 
-	$post_api =  esc_url_raw( get_rest_url( null, '/wp/v2/' . $post->post_type . 's/' . $post->ID ) );
-	$post_api_res = wp_remote_get( $post_api );
-	$post_api_data = wp_remote_retrieve_body( $post_api_res );
-	if ( !is_wp_error( $post_api_data )  ) {
-		$post_api_json = json_decode( $post_api_data );
+
+	$pages = get_pages();
+	$page_slugs = array();
+	foreach( $pages as $page ) {
+		$page->url = get_permalink( $page );
+		$page_slugs[$page->post_name] = $page;
+	}
+
+	// $post_api =  esc_url_raw( get_rest_url( null, '/wp/v2/' . $post->post_type . 's/' . $post->ID ) );
+	// $post_api_res = wp_remote_get( $post_api );
+	// $post_api_data = wp_remote_retrieve_body( $post_api_res );
+	// if ( !is_wp_error( $post_api_data )  ) {
+	// 	$post_api_json = json_decode( $post_api_data );
+	// }
+	
+	$post->url = get_permalink( $post );
+
+	$categories = get_the_category( $post );
+	if( is_array( $categories ) && sizeof( $categories ) ) {
+		$category = get_the_category( $post )[0];
+		$post->category = $category;
 	}
 
 	wp_scripts()->add_data( 'app_script', 'data', sprintf( 'var siteSettings = %s;', wp_json_encode( 
@@ -40,9 +63,10 @@ function candid_2019_scripts() {
 				'root' => esc_url_raw( $url ),
 				'theme' => esc_url_raw( get_stylesheet_directory_uri() )
 			),
-			'current' => $post_api_json,
+			'current' => $post,
 			'home_id' => intval( get_option( 'page_on_front' ) ),
-			'categories' => $block_cats
+			'categories' => $cat_slugs,
+			'pages' => $page_slugs
 		)
 	) ) );
 
@@ -50,20 +74,51 @@ function candid_2019_scripts() {
 add_action( 'wp_enqueue_scripts', 'candid_2019_scripts' );
 
 
+function get_post_endpoint() {
+
+	$id = $_GET['id'];
+	$post = get_post( $id );
+
+	$post->type = get_field( 'article_type', $post );
+	$post->link = get_permalink( $post );
+
+	return $post;
+
+}
+
+
 function get_posts_endpoint() {
 
 	$args = array(
 		'post_type' => 'post',
 		'posts_per_page'=> -1,
-		// 'orderby' => 'rand'
 	);
+
+	if( isset( $_GET['cat'] ) ) {
+		$cat = $_GET['cat'];
+		$args['category'] = $cat;
+		// $args['posts_per_page'] = -1;
+	}
 	$posts = get_posts( $args );
 	foreach ( $posts as $key => $post ) {
-		$post->sub_1 = get_field( 'sub_1', $post );
-		$post->sub_2 = get_field( 'sub_2', $post );
-		$post->color = get_field( 'color', $post );
-		$post->size = get_field( 'size', $post );
-		$post->link = get_permalink( $post );
+		$posts[$key] = $post;
+		$post->type = get_field( 'article_type', $post );
+		$post->url = get_permalink( $post );
+		$post->width = get_field( 'width', $post );
+		$post->height = get_field( 'height', $post );
+		$post->image = get_field( 'image', $post );
+		$post->image_type = get_field( 'image_type', $post );
+
+		$post->border = '';
+		if( $border_color = get_field( 'border_color', $post ) ) {
+			$post->border .= 'border-' . $border_color;
+		}
+		if( $border_style = get_field( 'border_style', $post ) ) {
+			if( strlen( $post->border ) ) {
+				$post->border .= ' ';	
+			}
+			$post->border .= 'border-' . $border_style;
+		}
 
 		$categories = get_the_category( $post );
 		if( is_array( $categories ) && sizeof( $categories ) ) {
@@ -82,44 +137,64 @@ function get_blocks_endpoint() {
 	$page_id = $_GET['page'];
 	$page = get_post( $page_id );
 	$blocks = get_field( 'blocks', $page );
-	foreach( $blocks as $block ) {
-		$block->url = get_permalink( $block );
+	if( $blocks ) {
+		foreach( $blocks as $block ) {
+			$block->url = get_permalink( $block );
 
-		if( $link = get_field( 'link', $block ) ) {
-			$link->url = get_permalink( $link );
-			$link->api_url = $link->post_type . 's/' . $link->ID;
-			$block->link = $link;
-		}
-
-		if( $date = get_field( 'date', $block ) ) {
-			$block->date = $date;
-		}
-
-		$block->color = get_field( 'color', $block );
-		$block->size = get_field( 'size', $block );
-		$block->format = get_field( 'format', $block );
-
-		$block->border = '';
-		if( $border_color = get_field( 'border_color', $block ) ) {
-			$block->border .= 'border-' . $border_color;
-		}
-		if( $border_style = get_field( 'border_style', $block ) ) {
-			if( strlen( $block->border ) ) {
-				$block->border .= ' ';	
+			if( $link = get_field( 'link', $block ) ) {
+				$link->url = get_permalink( $link );
+				$link->api_url = $link->post_type . 's/' . $link->ID;
+				$block->link = $link;
 			}
-			$block->border .= 'border-' . $border_style;
-		}
 
-		$categories = get_the_terms( $block, 'block_category' );
-		if( is_array( $categories ) && sizeof( $categories ) ) {
-			$category = $categories[0];
-			$block->category = $category;
-		} else {
-			$block->category = array('slug' => false);
+			if( $date = get_field( 'date', $block ) ) {
+				$block->date = $date;
+			}
+
+			$block->color = get_field( 'color', $block );
+			$block->width = get_field( 'width', $block );
+			$block->height = get_field( 'height', $block );
+			$block->format = get_field( 'format', $block );
+			$block->image = get_field( 'image', $block );
+			$block->image_type = get_field( 'image_type', $block );
+
+			$block->border = '';
+			if( $border_color = get_field( 'border_color', $block ) ) {
+				$block->border .= 'border-' . $border_color;
+			}
+			if( $border_style = get_field( 'border_style', $block ) ) {
+				if( strlen( $block->border ) ) {
+					$block->border .= ' ';	
+				}
+				$block->border .= 'border-' . $border_style;
+			}
+
+			// $categories = get_the_terms( $block, 'block_category' );
+			$categories = get_the_terms( $block, 'category' );
+			if( is_array( $categories ) && sizeof( $categories ) ) {
+				$category = $categories[0];
+				$block->category = $category;
+			} else {
+				$block->category = array('slug' => false);
+			}
+
+			switch( $block->category->slug) {
+				case "timeline":
+					$block->date = get_field( 'date', $block );
+					break;
+				case "quotes":
+					$block->quote_by = get_field( 'quote_by', $block );
+					break;
+				default:
+					break;
+			}
+
+
 		}
+		return $blocks;
+	} else {
+		return false;
 	}
-
-	return $blocks;
 
 }
 
@@ -280,6 +355,11 @@ add_action( 'init', 'register_events' );
 
 
 function register_endpoints() {
+
+	register_rest_route( 'wp/v2', '/get_post', array(
+		'methods' => 'GET',
+		'callback' => 'get_post_endpoint'
+	));
 
 	register_rest_route( 'wp/v2', '/get_posts', array(
 		'methods' => 'GET',
