@@ -2,19 +2,34 @@
 	width: 100%;
 	transition: none;
 	position: relative;
+	display: flex;
+	flex-direction: column;
 	float: left;
 	@include fadeIn;
 	@include sm {
-		padding-bottom: 70%;
+		width: 50%;
 		&.sm-width, &.md-width, &.lg-width {
-			width: 50%;
+			
 		}
 	}
 	@include md {
-		padding-bottom: 50%;
+		width: 50%;
+		&.sm-width, &.md-width, &.lg-width {
+			
+		}
 	}
 	@include lg {
-		padding-bottom: 30%;
+		&.sm-width {
+			width: 33.33%;
+		}
+		&.md-width {
+			width: 33.33%;
+		}
+		&.lg-width {
+			width: 66.66%;
+		}
+	}
+	@include xl {
 		&.sm-width {
 			width: 25%;
 		}
@@ -24,14 +39,8 @@
 		&.lg-width {
 			width: 50%;
 		}
-		&.sm-height {
-			padding-bottom: 25%;
-		}
-		&.md-height {
-			padding-bottom: 30%;
-		}
 	}
-	@include xl {
+	@include xxl {
 		&.sm-width {
 			width: 20%;
 		}
@@ -41,21 +50,12 @@
 		&.lg-width {
 			width: 80%;
 		}
-		&.sm-height {
-			padding-bottom: 20%;
-		}
 	}
-	// &.md-height {
-	// 	padding-bottom: 30%;	
-	// }
-	// &.lg-height {
-	// 	padding-bottom: 40%;
-	// }
 	&.hide {
 		display: none;
 	}
 	&.grid-sizer {
-		padding-bottom: 0 !important;
+		min-height: 0 !important;
 	}
 	p {
 		margin: 0;
@@ -75,7 +75,7 @@
 		background-repeat: no-repeat;
 		background-position: right center;
 		.text {
-			width: 60%;
+			width: calc(60% - .5rem);
 		}
 	}
 	.image-background {
@@ -92,95 +92,184 @@
 	    display: table;
 		}
 	}
-
-	&.feature, &.sidebar {
-		.read-link {
-			margin-top: .5rem;
-			font-family: $sans-serif;
-			font-size: 20px;
-			text-decoration: underline;
+	&.post {
+		&.feature, &.sidebar {
+			.read-link {
+				margin-top: .5rem;
+				font-family: $sans-serif;
+				font-size: 20px;
+				text-decoration: underline;
+			}
+		}
+		&.feature {
+			.title {
+				font-size: 40px;
+				line-height: 50px;
+				font-family: $serif;
+				font-weight: bold;
+			}
+		}
+		&.sidebar {
+			.title {
+				font-size: 24px;
+				line-height: 30px;
+				font-family: $sans-serif;
+				font-weight: bold;
+			}
+		}
+		&.timeline {
+			color: $lightest;
+			.block-inner {
+				background: $darkest;
+			}
+			.date {
+				margin-top: 1rem;
+				font-family: $serif;
+				font-size: 24px;
+				font-weight: bold;
+			}
+			.title {
+				margin-top: .5rem;
+				font-family: $sans-serif;
+				font-size: 16px;
+				line-height: 20px;
+				font-weight: bold;
+			}
+		}
+		&.quotes {
+			.body {
+				font-size: 28px;
+				line-height: 40px;
+				font-family: $serif;
+			}
+			.quote-by {
+				margin-top: .5rem;
+				font-size: 16px;
+				font-family: $sans-serif;
+				font-weight: bold;
+			}
+		}
+		&.staff-stats, &.fdo-stats {
+			.title {
+				font-size: 78px;
+				line-height: 85px;
+				font-family: $serif;
+			}
+			.body {
+				padding: .5rem 0 2rem 0;
+				font-size: 16px;
+				line-height: 20px;
+				font-family: $sans-serif;
+				font-weight: bold;
+			}
 		}
 	}
-	&.feature {
+	&.stat {
 		.title {
-			font-size: 40px;
-			line-height: 50px;
-			font-family: $serif;
-			font-weight: bold;
-		}
-	}
-	&.sidebar {
-		.title {
-			font-size: 24px;
-			line-height: 30px;
-			font-family: $sans-serif;
-			font-weight: bold;
-		}
-	}
-	&.timeline {
-		color: $lightest;
-		.block-inner {
-			background: $darkest;
-		}
-		.date {
-			margin-top: 1rem;
-			font-family: $serif;
-			font-size: 24px;
-			font-weight: bold;
-		}
-		.title {
-			margin-top: .5rem;
-			font-family: $sans-serif;
 			font-size: 16px;
 			line-height: 20px;
+			font-family: $sans-serif;
 			font-weight: bold;
 		}
-	}
-	&.quotes {
 		.body {
+			font-size: 15px;
+			line-height: 19px;
+			font-family: $mono;
+		}
+	}	
+	&.event {
+		font-family: $sans-serif;
+		.has-medium-font-size {
+			font-family: $serif;
+		}
+	}
+	&.outtake {
+		font-family: $sans-serif;
+		.title {
+			font-weight: bold;
+		}
+		.body {
+
+		}
+	}
+	.title {
+		&.sm-text {
 			font-size: 28px;
 			line-height: 40px;
-			font-family: $serif;
 		}
-		.quote-by {
-			margin-top: .5rem;
-			font-size: 16px;
-			font-family: $sans-serif;
+		&.md-text {
+			font-size: 40px;
+			line-height: 50px;
+		}
+		&.lg-text {
+			font-size: 78px;
+			line-height: 85px;
+		}
+		&.normal-text {
+			font-weight: normal;
+		}
+		&.bold-text {
 			font-weight: bold;
 		}
 	}
-	&.staff-stats, &.fdo-stats, {
-		.block-inner {
-			background: $yellow;
+}
+.masonry {
+	.block {
+		@include sm {
+			min-height: 70vw;
 		}
-		.title {
-			font-size: 78px;
-			line-height: 85px;
-			font-family: $serif;
+		@include md {
+			min-height: 50vw;
+			&.sm-height {
+				min-height: 25vw;
+			}
+			&.md-height {
+				min-height: 30vw;
+			}
+			&.lg-height {
+				min-height: 50vw;
+			}
 		}
-		.body {
-			font-size: 16px;
-			line-height: 20px;
-			font-family: $sans-serif;
-			font-weight: bold;
+		@include lg {
+			&.sm-height {
+				min-height: 25vw;
+			}
+			&.md-height {
+				min-height: 30vw;
+			}
+			&.lg-height {
+				min-height: 40vw;
+			}
+		}
+		@include xl {
+			min-height: 30vw;
+			&.sm-height {
+				min-height: 25vw;
+			}
+			&.md-height {
+				min-height: 30vw;
+			}
+			&.lg-height {
+				min-height: 40vw;
+			}
 		}
 	}
 }
 .block-inner {
 	width: calc(100% - 2rem);
-	height: calc(100% - 2rem);
+	// height: calc(100% - 2rem);
 	display: table;
 	margin: 1rem;
 	padding: 1rem;
-	border: 1px solid transparent;
+	border: 2px solid transparent;
 	-webkit-hyphenate-character: '';
 	@include sm {
 		min-height: unset;
-		margin: 0;
+		// margin: 0;
 		display: block;
-		position: absolute;
-		left: 1rem;
-		top: 1rem;
+		// position: absolute;
+		// left: 1rem;
+		// top: 1rem;
 	}
 	.white & {
 		background: $lightest;
@@ -189,14 +278,14 @@
 		background: $darkest;
 		color: $lightest;
 	}
-	.yellow & {
-		background: $yellow;
+	.gold & {
+		background: $gold;
 	}
 	.border-black & {
 		border-color: $darkest;
 	}
-	.border-yellow & {
-		border-color: $yellow;
+	.border-gold & {
+		border-color: $gold;
 	}
 	.border-dashed & {
 		border-style: dashed;
@@ -211,11 +300,6 @@
 	.image & {
 		padding: 0;
 		border-width: 0;
-	}
-	.month-label & {
-		@include mdText;
-		font-family: $sans-serif;
-		font-weight: bold;
 	}
 }
 .block-title {
@@ -270,7 +354,27 @@
 	}
 }
 
-#cat-block {
+.wp-block-table {
+	margin: 1rem 0 0 0;
+	* {
+		margin: 0;
+	}
+	td {
+		vertical-align: top;
+	}
+}
+
+.month-label {
+	margin: 0 0 0 1rem;
+	font-family: $sans-serif;
+	font-weight: bold;
+	@include mdText;
+	&:empty::before {
+		content: '&nbsp;';
+	}
+}
+
+.filter-block {
 	font-family: $mono;
 	.block-inner {
 		padding: 0 0 5rem 1.5rem;

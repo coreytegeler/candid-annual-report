@@ -38,21 +38,21 @@ class Header extends React.Component {
 
 	renderCategoryFilters() {
 		const self = this,
-					{ params } = this.state,
-					{ categories } = siteSettings,
-					categoryKeys = Object.keys(categories);
-		let categoryFilters = [];
-		categoryKeys.forEach(function(key, index) {
-			const category = categories[key],
-						{ slug, name } = category;
-			categoryFilters.push(
+					{ params } = this.props,
+					{ filters } = siteSettings,
+					filterKeys = Object.keys(filters);
+		let filterElems = [];
+		filterKeys.forEach(function(key, index) {
+			const filter = filters[key],
+						{ slug, name } = filter;
+			filterElems.push(
 				<div className="block-filter" key={key}>
 					<input
 						type="checkbox"
 						id={ slug }
 						name={ name }
 						value={ slug }
-						checked={ params.indexOf(slug) > -1 }
+						checked={ params ? params.indexOf(slug) > -1 : null }
 						onChange={ self.handleFilter.bind(self) } />
 
 					<label htmlFor={ slug }>
@@ -61,7 +61,7 @@ class Header extends React.Component {
 				</div>
 			);
 		});
-		return categoryFilters;
+		return filterElems;
 	}
 
 	render() {

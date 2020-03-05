@@ -68,15 +68,26 @@
 	}
 	.feature & {
 		h2 {
+			font-weight: 600;
 			@include xlText;
 		}
 	}
 	.sidebar & {
 		h2 {
 			font-family: $sans-serif;
-			font-weight: bold;
+			font-weight: 600;
 			@include lgText;
 		}
+	}
+}
+#page-blocks {
+	display: flex;
+	flex-wrap: wrap;
+	.block {
+		min-height: unset !important;
+	}
+	.grid-sizer {
+		display: none;
 	}
 }
 #article-blocks {

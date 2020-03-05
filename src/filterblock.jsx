@@ -2,7 +2,7 @@ import React from "react";
 import { render } from "react-dom";
 
 
-class CatBlock extends React.Component {
+class FilterBlock extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -12,9 +12,11 @@ class CatBlock extends React.Component {
 
 	componentDidMount() {
 		const { masonry, post, index } = this.props,
-					block = document.getElementById("cat-block");
+					blocks = document.getElementsByClassName("filter-block");
 		if(masonry) {
-			masonry.addItems(block);
+			blocks.forEach(function(block) {
+				masonry.addItems(block);
+			});
 			masonry.layout();
 		}
 	}
@@ -31,11 +33,11 @@ class CatBlock extends React.Component {
 	render() {
 		return(
 			<React.Fragment>
-				<div className="block sm-width" id="cat-block">
+				<div className="block filter-block sm-width">
 					<div className="block-inner">
 						<a href={siteSettings.url.root} onClick={this.clearParams.bind(this)}>
 							<div className="back-button"></div>
-							<span>{this.props.cat.name} selected</span>
+							<span>{this.props.filter.name} selected</span>
 							<br/><br/>
 					  	<span>Back to see everything</span>
 				  	</a>
@@ -47,4 +49,4 @@ class CatBlock extends React.Component {
 
 }
 
-export default CatBlock;
+export default FilterBlock;

@@ -1,7 +1,7 @@
 <?php
 function candid_2019_scripts() {
 	global $post;
-	$ver = '0.0.1';
+	$ver = '0.1.2';
 	$env = ( in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ) ) ? 'dev' : 'prod' );
 
 	$vendor_script_url = get_stylesheet_directory_uri() . '/dist/vendors'.( $env == 'prod' ? '.min' : '' ) . '.js';
@@ -10,22 +10,37 @@ function candid_2019_scripts() {
 	wp_enqueue_script( 'vendor_script', $vendor_script_url, array(), $ver, true );
 	wp_enqueue_script( 'app_script', $app_script_url, array(), $ver, true );
 
-	wp_enqueue_style( 'app_style', get_stylesheet_directory_uri() . '/dist/app.css' );
+	// wp_enqueue_style( 'fonts_style', 'http://cdn.candid.org/base/candid-base.css' );
+	wp_enqueue_style( 'algebra', 'https://cdn.candid.org/fonts/algebra/algebra.css' );
+	wp_enqueue_style( 'Akkurat-Bold', 'https://cdn.candid.org/fonts/akkurat/Akkurat-Bold/css/stylesheet.css' );
+	wp_enqueue_style( 'Akkurat-BoldItalic', 'https://cdn.candid.org/fonts/akkurat/Akkurat-BoldItalic/css/stylesheet.css' );
+	wp_enqueue_style( 'Akkurat-Italic', 'https://cdn.candid.org/fonts/akkurat/Akkurat-Italic/css/stylesheet.css' );
+	wp_enqueue_style( 'Akkurat-Regular', 'https://cdn.candid.org/fonts/akkurat/Akkurat-Regular/css/stylesheet.css' );
+	wp_enqueue_style( 'app_style', get_stylesheet_directory_uri() . '/dist/app.css', null, $ver );
 
 	$url = trailingslashit( home_url() );
 	$path = trailingslashit( parse_url( $url, PHP_URL_PATH ) );
+	$home_id = intval( get_option( 'page_on_front' ) );
 
-	// $cats = get_terms( 'block_category' );
+	// $cats = get_terms( 'filter' );
 	// $block_cats = array();
 	// foreach( $cats as $cat ) {
 	// 	$block_cats[$cat->slug] = $cat;
 	// }
 
-	$cats = get_terms( 'category' );
-	$cat_slugs = array();
-	foreach( $cats as $cat ) {
-		if( $cat->slug !== 'default' ) {
-			$cat_slugs[$cat->slug] = $cat;
+	$_categories = get_terms( 'category' );
+	$categories = array();
+	foreach( $_categories as $category ) {
+		if( $category->slug !== 'default' ) {
+			$categories[$category->slug] = $category;
+		}
+	}
+
+	$_filters = get_terms( 'filter' );
+	$filters = array();
+	foreach( $_filters as $filter ) {
+		if( $filter->slug !== 'default' ) {
+			$filters[$filter->slug] = $filter;
 		}
 	}
 
@@ -34,6 +49,7 @@ function candid_2019_scripts() {
 	$page_slugs = array();
 	foreach( $pages as $page ) {
 		$page->url = get_permalink( $page );
+		$page->page_type = get_page_type( $page );
 		$page_slugs[$page->post_name] = $page;
 	}
 
@@ -43,13 +59,12 @@ function candid_2019_scripts() {
 	// if ( !is_wp_error( $post_api_data )  ) {
 	// 	$post_api_json = json_decode( $post_api_data );
 	// }
-	
-	$post->url = get_permalink( $post );
-
-	$categories = get_the_category( $post );
-	if( is_array( $categories ) && sizeof( $categories ) ) {
-		$category = get_the_category( $post )[0];
-		$post->category = $category;
+	if( isset( $post ) ) {
+		$post->url = get_permalink( $post );
+		$post->blocks = get_blocks( $post );
+		$post->page_type = get_page_type( $post );
+		$post->category = get_post_category( $post );
+		$post->filter = get_post_filter( $post );
 	}
 
 	wp_scripts()->add_data( 'app_script', 'data', sprintf( 'var siteSettings = %s;', wp_json_encode( 
@@ -57,15 +72,16 @@ function candid_2019_scripts() {
 			'title' => get_bloginfo( 'name', 'display' ),
 			'tagline' => get_bloginfo( 'description', 'display' ),
 			'path' => $path,
-			'template' => str_replace( 'page-', '', basename( get_page_template_slug(), '.php' ) ),
+			'page_type' => get_page_type( $post ),
 			'url' => array(
 				'api' => esc_url_raw( get_rest_url( null, '/wp/v2/' ) ),
 				'root' => esc_url_raw( $url ),
 				'theme' => esc_url_raw( get_stylesheet_directory_uri() )
 			),
 			'current' => $post,
-			'home_id' => intval( get_option( 'page_on_front' ) ),
-			'categories' => $cat_slugs,
+			'home_id' => $home_id,
+			'categories' => $categories,
+			'filters' => $filters,
 			'pages' => $page_slugs
 		)
 	) ) );
@@ -73,6 +89,29 @@ function candid_2019_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'candid_2019_scripts' );
 
+function get_post_category( $post ) {
+	$categories = get_the_category( $post );
+	if( $post->post_type == 'post' && $categories ) {
+		$category = get_the_category( $post )[0];
+	} else {
+		$category = array( 'slug' => null );
+	}
+	return $category;
+}
+
+function get_post_filter( $post ) {
+	$filters = get_the_terms( $post, 'filter' );
+	if( $filters ) {
+		$filter = get_the_terms( $post, 'filter' )[0];
+	} else {
+		$filter = array( 'slug' => null );
+	}
+	return $filter;
+}
+
+function get_page_type( $post ) {
+	return str_replace( 'page-', '', basename( get_page_template_slug( $post ), '.php' ) );
+}
 
 function get_post_endpoint() {
 
@@ -81,6 +120,9 @@ function get_post_endpoint() {
 
 	$post->type = get_field( 'article_type', $post );
 	$post->link = get_permalink( $post );
+	$post->page_type = get_page_type( $post );
+	$post->category = get_post_category( $post );
+	$post->filter = get_post_filter( $post );
 
 	return $post;
 
@@ -102,12 +144,15 @@ function get_posts_endpoint() {
 	$posts = get_posts( $args );
 	foreach ( $posts as $key => $post ) {
 		$posts[$key] = $post;
-		$post->type = get_field( 'article_type', $post );
+		$post->page_type = get_page_type( $post );
 		$post->url = get_permalink( $post );
 		$post->width = get_field( 'width', $post );
 		$post->height = get_field( 'height', $post );
-		$post->image = get_field( 'image', $post );
+		$post->image = get_the_post_thumbnail_url( $post, 'large' );
 		$post->image_type = get_field( 'image_type', $post );
+
+		$post->text_size = get_field( 'text_size', $post );
+		$post->text_weight = get_field( 'text_weight', $post );
 
 		$post->border = '';
 		if( $border_color = get_field( 'border_color', $post ) ) {
@@ -119,12 +164,9 @@ function get_posts_endpoint() {
 			}
 			$post->border .= 'border-' . $border_style;
 		}
-
-		$categories = get_the_category( $post );
-		if( is_array( $categories ) && sizeof( $categories ) ) {
-			$category = get_the_category( $post )[0];
-			$post->category = $category;
-		}
+		$post->category = get_post_category( $post );
+		$post->filter = get_post_filter( $post );
+		
 		$posts[$key] = $post;
 	}
 
@@ -136,6 +178,10 @@ function get_posts_endpoint() {
 function get_blocks_endpoint() {
 	$page_id = $_GET['page'];
 	$page = get_post( $page_id );
+	return get_blocks( $page );
+}
+
+function get_blocks( $page ) {
 	$blocks = get_field( 'blocks', $page );
 	if( $blocks ) {
 		foreach( $blocks as $block ) {
@@ -147,16 +193,23 @@ function get_blocks_endpoint() {
 				$block->link = $link;
 			}
 
-			if( $date = get_field( 'date', $block ) ) {
+			$date = get_field( 'date', $block );
+			if( $date ) {
 				$block->date = $date;
+			}
+			$quote_by = get_field( 'quote_by', $block );
+			if( $quote_by ) {
+				$block->quote_by = $quote_by;
 			}
 
 			$block->color = get_field( 'color', $block );
 			$block->width = get_field( 'width', $block );
 			$block->height = get_field( 'height', $block );
-			$block->format = get_field( 'format', $block );
-			$block->image = get_field( 'image', $block );
+			$block->image = get_the_post_thumbnail_url( $block, 'large' );
 			$block->image_type = get_field( 'image_type', $block );
+
+			$block->text_size = get_field( 'text_size', $block );
+			$block->text_weight = get_field( 'text_weight', $block );
 
 			$block->border = '';
 			if( $border_color = get_field( 'border_color', $block ) ) {
@@ -169,99 +222,70 @@ function get_blocks_endpoint() {
 				$block->border .= 'border-' . $border_style;
 			}
 
-			// $categories = get_the_terms( $block, 'block_category' );
-			$categories = get_the_terms( $block, 'category' );
-			if( is_array( $categories ) && sizeof( $categories ) ) {
-				$category = $categories[0];
-				$block->category = $category;
-			} else {
-				$block->category = array('slug' => false);
-			}
-
-			switch( $block->category->slug) {
-				case "timeline":
-					$block->date = get_field( 'date', $block );
-					break;
-				case "quotes":
-					$block->quote_by = get_field( 'quote_by', $block );
-					break;
-				default:
-					break;
-			}
-
+			$block->category = get_post_category( $block );
+			$block->filter = get_post_filter( $block );
 
 		}
 		return $blocks;
 	} else {
 		return false;
 	}
-
 }
 
-add_action( 'rest_api_init', 'register_endpoints' );
-
-function register_blocks() {
-	$labels = array(
-		'name'                  => _x( 'Blocks', 'Post type general name', 'textdomain' ),
-		'singular_name'         => _x( 'Block', 'Post type singular name', 'textdomain' ),
-		'menu_name'             => _x( 'Blocks', 'Admin Menu text', 'textdomain' ),
-		'name_admin_bar'        => _x( 'Block', 'Add New on Toolbar', 'textdomain' ),
-		'add_new'               => __( 'Add New', 'textdomain' ),
-		'add_new_item'          => __( 'Add New Block', 'textdomain' ),
-		'new_item'              => __( 'New Block', 'textdomain' ),
-		'edit_item'             => __( 'Edit Block', 'textdomain' ),
-		'view_item'             => __( 'View Block', 'textdomain' ),
-		'all_items'             => __( 'All Blocks', 'textdomain' ),
-		'search_items'          => __( 'Search Blocks', 'textdomain' ),
-		'parent_item_colon'     => __( 'Parent Blocks:', 'textdomain' ),
-		'not_found'             => __( 'No blocks found.', 'textdomain' ),
-		'not_found_in_trash'    => __( 'No blocks found in Trash.', 'textdomain' )
-	);
-
-	$args = array(
-		'labels'             => $labels,
-		'public'             => true,
-		'publicly_queryable' => true,
-		'menu_icon'					 => 'dashicons-screenoptions',
-		'show_ui'            => true,
-		'show_in_menu'       => true,
-		'query_var'          => true,
-		'rewrite'            => array( 'slug' => 'block' ),
-		'capability_type'    => 'post',
-		'has_archive'        => true,
-		'hierarchical'       => false,
-		'menu_position'      => 4,
-		'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
-		'show_in_rest' 			 => true
-	);
-
-	register_post_type( 'block', $args );
+function remove_support() {
+  remove_post_type_support( 'post', 'excerpt' );
 }
- 
-add_action( 'init', 'register_blocks' );
+add_action('init', 'remove_support');
 
-function register_block_categories() {
+add_theme_support( 'post-thumbnails' );
+
+function register_filters() {
 	$labels = array(
-		'name'              => _x( 'Block Categories', 'taxonomy general name' ),
-		'singular_name'     => _x( 'Block Category', 'taxonomy singular name' ),
-		'search_items'      => __( 'Search Block Categories' ),
-		'all_items'         => __( 'All Block Categories' ),
-		'parent_item'       => __( 'Parent Block Category' ),
-		'parent_item_colon' => __( 'Parent Block Category:' ),
-		'edit_item'         => __( 'Edit Block Category' ), 
-		'update_item'       => __( 'Update Block Category' ),
-		'add_new_item'      => __( 'Add New Block Category' ),
-		'new_item_name'     => __( 'New Block Category' ),
-		'menu_name'         => __( 'Block Categories' ),
+		'name'              => _x( 'Filters', 'taxonomy general name' ),
+		'singular_name'     => _x( 'Filter', 'taxonomy singular name' ),
+		'search_items'      => __( 'Search Filters' ),
+		'all_items'         => __( 'All Filters' ),
+		'parent_item'       => __( 'Parent Filter' ),
+		'parent_item_colon' => __( 'Parent Filter:' ),
+		'edit_item'         => __( 'Edit Filter' ), 
+		'update_item'       => __( 'Update Filter' ),
+		'add_new_item'      => __( 'Add New Filter' ),
+		'new_item_name'     => __( 'New Filter' ),
+		'menu_name'         => __( 'Filters' ),
 	);
 	$args = array(
 		'labels' => $labels,
 		'hierarchical' => true,
 		'show_in_rest' => true,
 	);
-	register_taxonomy( 'block_category', 'block', $args );
+	register_taxonomy( 'filter', 'post', $args );
 }
-add_action( 'init', 'register_block_categories', 0 );
+add_action( 'init', 'register_filters', 0 );
+
+
+function register_stat_types() {
+	$labels = array(
+		'name'              => _x( 'Stat Types', 'taxonomy general name' ),
+		'singular_name'     => _x( 'Stat Type', 'taxonomy singular name' ),
+		'search_items'      => __( 'Search Stat Types' ),
+		'all_items'         => __( 'All Stat Types' ),
+		'parent_item'       => __( 'Parent Stat Type' ),
+		'parent_item_colon' => __( 'Parent Stat Type:' ),
+		'edit_item'         => __( 'Edit Stat Type' ), 
+		'update_item'       => __( 'Update Stat Type' ),
+		'add_new_item'      => __( 'Add New Stat Type' ),
+		'new_item_name'     => __( 'New Stat Type' ),
+		'menu_name'         => __( 'Stat Types' ),
+	);
+	$args = array(
+		'labels' => $labels,
+		'hierarchical' => true,
+		'show_in_rest' => true,
+	);
+	register_taxonomy( 'stat_type', 'stat', $args );
+}
+add_action( 'init', 'register_stat_types', 0 );
+
 
 function register_stats() {
 	$labels = array(
@@ -293,8 +317,8 @@ function register_stats() {
 		'capability_type'    => 'post',
 		'has_archive'        => true,
 		'hierarchical'       => false,
-		'menu_position'      => 5,
-		'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
+		'menu_position'      => 4,
+		'supports'           => array( 'title', 'editor', 'author', 'thumbnail' ),
 		'show_in_rest' 			 => true
 	);
 
@@ -332,14 +356,55 @@ function register_events() {
 		'capability_type'    => 'post',
 		'has_archive'        => true,
 		'hierarchical'       => false,
-		'menu_position'      => 6,
-		'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments' ),
+		'menu_position'      => 5,
+		'supports'           => array( 'title', 'editor', 'author', 'thumbnail' ),
 		'show_in_rest' 			 => true
 	);
 
 	register_post_type( 'event', $args );
 }
 add_action( 'init', 'register_events' );
+
+
+function register_outtakes() {
+	$labels = array(
+		'name'                  => _x( 'Outtakes', 'Post type general name', 'textdomain' ),
+		'singular_name'         => _x( 'Outtake', 'Post type singular name', 'textdomain' ),
+		'menu_name'             => _x( 'Outtakes', 'Admin Menu text', 'textdomain' ),
+		'name_admin_bar'        => _x( 'Outtake', 'Add New on Toolbar', 'textdomain' ),
+		'add_new'               => __( 'Add New', 'textdomain' ),
+		'add_new_item'          => __( 'Add New Outtake', 'textdomain' ),
+		'new_item'              => __( 'New Outtake', 'textdomain' ),
+		'edit_item'             => __( 'Edit Outtake', 'textdomain' ),
+		'view_item'             => __( 'View Outtake', 'textdomain' ),
+		'all_items'             => __( 'All Outtakes', 'textdomain' ),
+		'search_items'          => __( 'Search Outtakes', 'textdomain' ),
+		'parent_item_colon'     => __( 'Parent Outtakes:', 'textdomain' ),
+		'not_found'             => __( 'No outtakes found.', 'textdomain' ),
+		'not_found_in_trash'    => __( 'No outtakes found in Trash.', 'textdomain' )
+	);
+
+	$args = array(
+		'labels'             => $labels,
+		'public'             => true,
+		'publicly_queryable' => true,
+		'menu_icon'					 => 'dashicons-format-status',
+		'show_ui'            => true,
+		'show_in_menu'       => true,
+		'query_var'          => true,
+		'rewrite'            => array( 'slug' => 'outtake' ),
+		'capability_type'    => 'post',
+		'has_archive'        => true,
+		'hierarchical'       => false,
+		'menu_position'      => 6,
+		'supports'           => array( 'title', 'editor', 'author', 'thumbnail' ),
+		'show_in_rest' 			 => true
+	);
+
+	register_post_type( 'outtake', $args );
+}
+ 
+add_action( 'init', 'register_outtakes' );
 
 
 // function add_editor_style( $stylesheet = 'admin.css' ) {
@@ -372,6 +437,8 @@ function register_endpoints() {
 	));
 
 };
+
+add_action( 'rest_api_init', 'register_endpoints' );
  
 
 ?>

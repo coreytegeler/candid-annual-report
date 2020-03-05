@@ -29,9 +29,9 @@ class Post extends React.Component {
 
 	getPosts() {
 		const self = this,
-					{ category } = this.props.post;
+					{ filter } = this.props.post;
 		if(category) {
-			const req = siteSettings.url.api + "get_posts?cat=" + category.term_id;
+			const req = siteSettings.url.api + "get_posts?filter=" + category.term_id;
 			fetch(req)
 				.then(function(res) {
 					if (!res.ok) {

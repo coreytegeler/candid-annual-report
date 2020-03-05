@@ -1,8 +1,11 @@
 header#header {
-	width: 100%;
 	background: white;
-	margin-bottom: 2rem;
+	margin: 0 0 2rem 0;
 	display: table;
+	@include sm {
+		display: block;
+		margin: 0 -1rem 2rem -1rem;
+	}
 	@include md {
 		height: 10rem;
 		margin-bottom: 4rem;
@@ -16,6 +19,9 @@ header#header {
 		width: 40%;
 		margin-bottom: 0;
 		float: left;
+	}
+	@include lg {
+		width: 33.33%;
 	}
 }
 #site-title {
@@ -43,23 +49,23 @@ header#header {
 	font-family: $sans-serif;
 	user-select: none;
 	float: right;
-	// opacity: 0;
-	// @include fadeIn(1000ms, 2000ms);
-
 	@include md {
 		width: 50%;
 	}
 	@include lg {
-		width: 50%;
+		width: 33.33%;
 	}
 	@include xl {
-		width: 40%;
+		width: 25%;
 	}
 	form {
 		width: 100%;
-		float: right;
 		display: flex;
 		flex-wrap: wrap;
+	  @include md {
+	  	margin: 0;
+	  	float: right;
+	  }
 	}
 	.block-filter {
 		width: 50%;
@@ -90,6 +96,8 @@ header#header {
 		left: -99999px;
 	}
 	body.article-open & {
-		display: none;
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
 	}
 }

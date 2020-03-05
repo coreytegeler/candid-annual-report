@@ -19,11 +19,11 @@ class Block extends React.Component {
 		if(masonry) {
 			masonry.addItems(block);
 			masonry.layout();
-		}
-		if(img) {
-			img.addEventListener("load", function() {
-				masonry.layout();
-			});
+			if(img) {
+				img.addEventListener("load", function() {
+					masonry.layout();
+				});
+			}
 		}
 	}
 
@@ -49,11 +49,13 @@ class Block extends React.Component {
 	}
 
 	renderContent(post) {
-		const { post_title, post_content, ID, url, width, height, border, link, category, image, image_type } = post;
-		switch(category.slug) {
+		const { frozen } = this.props,
+					{ post_title, post_content, post_type, ID, url, width, height, border, link, category, image, image_type, text_size, text_weight } = post,
+					switch_var = category ? category.slug : post_type;
+		switch(switch_var) {
 			case "feature":
 				return(
-					<div className={`block-content ${image_type ? "image-"+image_type : null}`} style={ image? { backgroundImage: `url(${image.sizes.medium_large})` } : null }>
+					<div className={`block-content ${image_type ? "image-"+image_type : null}`} style={ image ? { backgroundImage: `url(${image})` } : null }>
 						<div className="title">{ post_title }</div>
 						<div className="read-link">Read the story</div>
 					</div>
@@ -69,7 +71,7 @@ class Block extends React.Component {
 				break;
 			case "timeline":
 				return(
-					<div className={`block-content ${image_type ? "image-"+image_type : null}`} style={{ backgroundImage: `url(${image.sizes.medium_large})` }}>
+					<div className={`block-content ${image_type ? "image-"+image_type : null}`} style={ image ? { backgroundImage: `url(${image})` } : null }>
 						<div className="text">
 							<div className="category">See Year One Timeline</div>
 							<div className="date">{ post.date }</div>
@@ -89,41 +91,71 @@ class Block extends React.Component {
 			case "staff-stats":
 				return(
 					<div className="block-content">
-						<div className="category">See Staff Stats</div>
+						{ frozen ? null : <div className="category">See Staff Stats</div> }
 						<div className="title">{ post_title }</div>
 						<div className="body">{ ReactHtmlParser(post_content) }</div>
 					</div>
 				);
 				break;
 			case "fdo-stats":
+				const { text_size, text_weight } = post;
 				return(
 					<div className="block-content">
-						<div className="category">See FDO Stats</div>
-						<div className="title">{ post_title }</div>
+						{ frozen ? null : <div className="category">See FDO Stats</div> }
+						<div className={`title ${ text_size } ${ text_weight }`}>{ post_title }</div>
 						<div className="body">{ ReactHtmlParser(post_content) }</div>
 					</div>
 				);
 				break;
-			case "timeline":
+			case "event":
+				return(
+					<div className="block-content">
+						<div className="body">{ ReactHtmlParser(post_content) }</div>
+					</div>
+				);
+				break;
+			case "stat":
+				return(
+					<div className="block-content">
+						<div className="title">{ post_title }</div>
+						<div className="body">{ ReactHtmlParser(post_content) }</div>
+					</div>
+				);
+			case "outtake":
+				return(
+					<div className="block-content">
+						<div className="title">{ post_title }</div>
+						<div className="body">{ ReactHtmlParser(post_content) }</div>
+					</div>
+				);
 				break;
 		}
 	}
 
 
 	render() {
-		const { post, visible, frozen } = this.props,
-					{ post_title, post_content, ID, url, color, width, height, border, format, link, category } = post,
+		const { post, visible, frozen, month } = this.props,
+					{ post_title, post_content, post_type, ID, url, category } = post,
 					{ pages } = siteSettings,
-					catSlug = category.slug;
+					block_type = category ? category.slug : post_type;
 		let page_url, page_id;
-		if(pages.hasOwnProperty(catSlug)) {
-			const page = pages[catSlug];
+		if(pages.hasOwnProperty(block_type)) {
+			const page = pages[block_type];
 			page_url = page.url;
 			page_id = page.ID;
 		}
+		const classProps = ['color','width','height','border','format','block_type'],
+					classNames = ['block', block_type, post_type];
+		classProps.forEach(function(prop) {
+			if(post.hasOwnProperty(prop)) {
+				classNames.push(post[prop]);
+			}
+		});
+
 		return(
 			<React.Fragment>
-				<div className={`block ${color} ${width} ${height} ${border} ${format} ${category ? category.slug : 'default'}`} id={`block-${ID}`}>
+				<div className={classNames.join(" ")} id={`block-${ID}`}>
+					{ month ? <div className="month-label">{month}</div> : null }
 					<a href={ frozen ? null : ( page_url ? page_url : url ) }
 						 className="block-inner"
 						 data-id={ page_id ? page_id : ID }

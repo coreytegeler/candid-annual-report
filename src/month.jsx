@@ -33,10 +33,8 @@ class Month extends React.Component {
 					months = ["January","February","March","April","May","June","July","August","September","October","November","December"],
 					monthTitle = months[month];
 		return(
-			<div className="block small month-label" id={ "month-"+month }>
-				<div className="block-inner">
-					{ monthTitle }
-				</div>
+			<div className="block sm-width month-label" id={ "month-"+month }>
+				{ monthTitle }
 			</div>
 		);
 	}

@@ -7,7 +7,7 @@ import Masonry from "masonry-layout";
 import publicCss from './sass/public.scss';
 import Header from './header';
 import Block from './block';
-import CatBlock from './catblock';
+import FilterBlock from './filterblock';
 import Page from './page';
 import Post from './post';
 
@@ -25,7 +25,7 @@ class App extends React.Component {
 
 	componentDidMount() {
 		const self = this,
-					{ current, categories, home_id } = siteSettings;
+					{ current, categories, filters, home_id } = siteSettings;
 		this.getBlocks();
 		const main = document.querySelector('#main-blocks');
 		let masonry = new Masonry( main, {
@@ -38,8 +38,8 @@ class App extends React.Component {
 		});
 		window.addEventListener("resize", this.handleResize.bind(this));
 
-		const catSlugs = Object.keys(categories);
-		self.updateParams(catSlugs);
+		const filterSlugs = Object.keys(filters);
+		this.updateParams(filterSlugs);
 		
 
 		window.onpopstate = (e) => {
@@ -58,9 +58,9 @@ class App extends React.Component {
 
 	componentDidUpdate(prevProps, prevState, snapshot) {
 		const body = document.querySelector("body"),
-					catBlock = document.getElementById("#cat-block"),
+					filterBlocks = document.getElementsByClassName(".filter-block"),
 					{ masonry } = this.state;
-		if(masonry && catBlock) {
+		if(masonry && filterBlocks) {
 			masonry.appended();
 			masonry.layout();
 		}	
@@ -90,9 +90,9 @@ class App extends React.Component {
 	}
 
 	clearParams() {
-		const allCatSlugs = Object.keys(siteSettings.categories);
+		const allFilterSlugs = Object.keys(siteSettings.filters);
 		this.setState({
-			params: allCatSlugs
+			params: allFilterSlugs
 		});
 	}
 
@@ -118,17 +118,17 @@ class App extends React.Component {
 		const self = this,
 					{ blocks, masonry, params } = this.state;
 		let blockElems = [],
-				visibleBlocks = blocks.filter(post => params.indexOf(post.category.slug) > -1);
+				visibleBlocks = blocks.filter(post => params.indexOf(post.filter ? post.filter.slug : null) > -1);
 				// visibleBlocks = blocks;
 
 		
 		if(params.length == 1) {
 			const param = params[0],
-						cat = siteSettings.categories[param];
+						filter = siteSettings.filters[param];
 			blockElems.push(
-				<CatBlock
+				<FilterBlock
 					key={ 0 }
-					cat={ cat }
+					filter={ filter }
 					masonry={ masonry }
 					clearParams={self.clearParams.bind(self)} />
 			);
@@ -138,16 +138,18 @@ class App extends React.Component {
 		if(visibleBlocks) {
 			visibleBlocks.forEach(function(post, i) {
 				if(typeof post === "object") {
+					const frozen = post.category.slug == "quotes";
 					blockElems.push(
 						<Block
 							key={ i+1 }
 							post={ post }
+							frozen={ frozen }
 							masonry={ masonry }
 							openOverlay={self.openOverlay.bind(self)} />
 					)
 				} else if(params.length == 1) {
 					const param = params[0],
-								cat = siteSettings.categories[param];
+								filter = siteSettings.filters[param];
 					// blockElems.push(
 					// 	<CatBlock
 					// 		key={ i }
@@ -212,7 +214,7 @@ class App extends React.Component {
 					params={ params }
 					closeOverlay={ this.closeOverlay.bind(this) }
 					updateParams={ this.updateParams.bind(this) } />
-				<main id="main-blocks" className="index">
+				<main id="main-blocks" className="index masonry">
 					<div className="grid-sizer block sm-width"></div>
 					{ this.renderBlocks() }
 				</main>

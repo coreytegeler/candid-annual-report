@@ -55,8 +55,10 @@ a, a:hover, a:active, a:link, a:visited {
 }
 
 main {
-	width: 100%;
 	margin: 1rem 0;
+	@include sm {
+		margin: 1rem -1rem;
+	}
 }
 
 main#main-blocks {
