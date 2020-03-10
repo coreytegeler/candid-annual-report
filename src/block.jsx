@@ -49,93 +49,93 @@ class Block extends React.Component {
 	}
 
 	renderContent(post) {
-		const { frozen } = this.props,
+		const { frozen, page } = this.props,
 					{ post_title, post_content, post_type, ID, url, width, height, border, link, category, image, image_type, text_size, text_weight } = post,
-					switch_var = category ? category.slug : post_type;
-		switch(switch_var) {
-			case "feature":
-				return(
-					<div className={`block-content ${image_type ? "image-"+image_type : null}`} style={ image ? { backgroundImage: `url(${image})` } : null }>
+					block_type = category ? category.slug : post_type;
+		let blockContent;
+		if(block_type == "feature") {
+			return(
+				<div className={`block-content ${image_type ? "image-"+image_type : null}`} style={ image ? { backgroundImage: `url(${image})` } : null }>
+					<div className="title">{ post_title }</div>
+					<div className="read-link">Read the story</div>
+				</div>
+			);
+		}
+		if(block_type == "sidebar") {
+			return(
+				<div className="block-content">
+					<div className="title">{ post_title }</div>
+					<div className="read-link">Read the story</div>
+				</div>
+			);
+		}
+		if(block_type == "timeline") {
+			return(
+				<div className={`block-content ${image_type ? "image-"+image_type : null}`} style={ image ? { backgroundImage: `url(${image})` } : null }>
+					<div className="text">
+						<div className="category">See Year One Timeline</div>
+						<div className="date">{ post.date }</div>
 						<div className="title">{ post_title }</div>
-						<div className="read-link">Read the story</div>
 					</div>
-				);
-				break;
-			case "sidebar":
-				return(
-					<div className="block-content">
-						<div className="title">{ post_title }</div>
-						<div className="read-link">Read the story</div>
-					</div>
-				);
-				break;
-			case "timeline":
-				return(
-					<div className={`block-content ${image_type ? "image-"+image_type : null}`} style={ image ? { backgroundImage: `url(${image})` } : null }>
-						<div className="text">
-							<div className="category">See Year One Timeline</div>
-							<div className="date">{ post.date }</div>
-							<div className="title">{ post_title }</div>
-						</div>
-					</div>
-				);
-				break;
-			case "quotes":
-				return(
-					<div className="block-content">
-						<div className="body">{ ReactHtmlParser(post_content) }</div>
-						<div className="quote-by">{ post.quote_by }</div>
-					</div>
-				);
-				break;
-			case "staff-stats":
-				return(
-					<div className="block-content">
-						{ frozen ? null : <div className="category">See Staff Stats</div> }
-						<div className="title">{ post_title }</div>
-						<div className="body">{ ReactHtmlParser(post_content) }</div>
-					</div>
-				);
-				break;
-			case "fdo-stats":
-				const { text_size, text_weight } = post;
-				return(
-					<div className="block-content">
-						{ frozen ? null : <div className="category">See FDO Stats</div> }
-						<div className={`title ${ text_size } ${ text_weight }`}>{ post_title }</div>
-						<div className="body">{ ReactHtmlParser(post_content) }</div>
-					</div>
-				);
-				break;
-			case "event":
-				return(
-					<div className="block-content">
-						<div className="body">{ ReactHtmlParser(post_content) }</div>
-					</div>
-				);
-				break;
-			case "stat":
-				return(
-					<div className="block-content">
-						<div className="title">{ post_title }</div>
-						<div className="body">{ ReactHtmlParser(post_content) }</div>
-					</div>
-				);
-			case "outtake":
-				return(
-					<div className="block-content">
-						<div className="title">{ post_title }</div>
-						<div className="body">{ ReactHtmlParser(post_content) }</div>
-					</div>
-				);
-				break;
+				</div>
+			);
+		}
+		if(block_type == "quotes") {
+			return(
+				<div className="block-content">
+					<div className="body">{ ReactHtmlParser(post_content) }</div>
+					<div className="quote-by">{ post.quote_by }</div>
+				</div>
+			);
+		}
+		if(block_type == "staff-stats" || page.post_name == "staff-stats") {
+			return(
+				<div className="block-content">
+					{ frozen ? null : <div className="category">See Staff Stats</div> }
+					<div className="title">{ post_title }</div>
+					<div className="body">{ ReactHtmlParser(post_content) }</div>
+				</div>
+			);
+		}
+		if(block_type == "fdo-stats" || page.post_name == "fdo-stats") {
+			const { text_size, text_weight } = post;
+			return(
+				<div className="block-content">
+					{ frozen ? null : <div className="category">See FDO Stats</div> }
+					<div className={`title ${ text_size } ${ text_weight }`}>{ post_title }</div>
+					<div className="body">{ ReactHtmlParser(post_content) }</div>
+				</div>
+			);
+		}
+		if(block_type == "event") {
+			return(
+				<div className="block-content">
+					<div className="body">{ ReactHtmlParser(post_content) }</div>
+				</div>
+			);
+		}
+		if(block_type == "stat") {
+			// return(
+			// 	<div className="block-content">
+			// 		<div className="title">{ post_title }</div>
+			// 		<div className="body">{ ReactHtmlParser(post_content) }</div>
+			// 	</div>
+			// );
+		}
+		if(block_type == "outtake") {
+			return(
+				<div className="block-content">
+					<div className="title">{ post_title }</div>
+					<div className="body">{ ReactHtmlParser(post_content) }</div>
+				</div>
+			);
 		}
 	}
 
 
 	render() {
-		const { post, visible, frozen, month } = this.props,
-					{ post_title, post_content, post_type, ID, url, category } = post,
+		const { post, visible, frozen, month, page } = this.props,
+					{ post_title, post_content, post_type, ID, url, category, image_type } = post,
 					{ pages } = siteSettings,
 					block_type = category ? category.slug : post_type;
 		let page_url, page_id;
@@ -144,14 +144,16 @@ class Block extends React.Component {
 			page_url = page.url;
 			page_id = page.ID;
 		}
-		const classProps = ['color','width','height','border','format','block_type'],
-					classNames = ['block', block_type, post_type];
+		const classProps = ["color", "width", "height", "border", "format", "block_type"],
+					classNames = ["block", block_type, post_type, page.post_name];
+		if(image_type) {
+			classNames.push("has-image");
+		}
 		classProps.forEach(function(prop) {
 			if(post.hasOwnProperty(prop)) {
 				classNames.push(post[prop]);
 			}
 		});
-
 		return(
 			<React.Fragment>
 				<div className={classNames.join(" ")} id={`block-${ID}`}>

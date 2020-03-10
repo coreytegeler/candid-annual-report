@@ -17,7 +17,9 @@ body {
 	@include smText;
 }
 * {
-	box-sizing: border-box;
+	&::before, &::after, & {
+		box-sizing: border-box;
+	}
 }
 
 h1, h2, h3, h4, h5 {
@@ -32,6 +34,10 @@ h2 {
 }
 h3 {
 	@include smText;
+}
+
+strong {
+	font-weight: 600;
 }
 
 a, a:hover, a:active, a:link, a:visited {
@@ -70,8 +76,8 @@ main#main-blocks {
 }
 
 .back-button {
-	width: 1rem;
-	height: 1rem;
+	width: $button;
+	height: $button;
 	display: inline-block;
 	border: 1px solid $darkest;
 	background: url(./../../images/back.svg);

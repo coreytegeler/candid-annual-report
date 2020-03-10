@@ -53,7 +53,7 @@ class Page extends React.Component {
 		let blockElems = [],
 				lastMonth;
 		blocks.forEach(function(block, i) {
-			let monthTitle = "\u00A0";
+			let monthTitle;
 			block.category = {
 				slug: block.post_type
 			};
@@ -64,12 +64,15 @@ class Page extends React.Component {
 				if(lastMonth !== month) {
 					monthTitle = months[month];
 					lastMonth = month;
+				} else {
+					monthTitle = "\u00A0";
 				}
 			}
 			blockElems.push(
 				<Block
 					key={ i }
 					post={ block }
+					page={ post }
 					month={ monthTitle }
 					frozen={ true }
 					openOverlay={self.props.openOverlay.bind(self)} />

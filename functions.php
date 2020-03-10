@@ -1,7 +1,7 @@
 <?php
 function candid_2019_scripts() {
 	global $post;
-	$ver = '0.1.2';
+	$ver = '0.1.5';
 	$env = ( in_array( $_SERVER['REMOTE_ADDR'], array( '127.0.0.1', '::1' ) ) ? 'dev' : 'prod' );
 
 	$vendor_script_url = get_stylesheet_directory_uri() . '/dist/vendors'.( $env == 'prod' ? '.min' : '' ) . '.js';
@@ -21,6 +21,7 @@ function candid_2019_scripts() {
 	$url = trailingslashit( home_url() );
 	$path = trailingslashit( parse_url( $url, PHP_URL_PATH ) );
 	$home_id = intval( get_option( 'page_on_front' ) );
+	$home_page = get_post( $home_id );
 
 	// $cats = get_terms( 'filter' );
 	// $block_cats = array();
@@ -79,6 +80,7 @@ function candid_2019_scripts() {
 				'theme' => esc_url_raw( get_stylesheet_directory_uri() )
 			),
 			'current' => $post,
+			'home' => $home_page,
 			'home_id' => $home_id,
 			'categories' => $categories,
 			'filters' => $filters,

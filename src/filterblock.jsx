@@ -12,8 +12,9 @@ class FilterBlock extends React.Component {
 
 	componentDidMount() {
 		const { masonry, post, index } = this.props,
-					blocks = document.getElementsByClassName("filter-block");
-		if(masonry) {
+					blocks = document.querySelectorAll(".filter-block");
+		console.log(blocks);
+		if(masonry && blocks) {
 			blocks.forEach(function(block) {
 				masonry.addItems(block);
 			});
@@ -33,7 +34,7 @@ class FilterBlock extends React.Component {
 	render() {
 		return(
 			<React.Fragment>
-				<div className="block filter-block sm-width">
+				<div className="block filter-block sm-width sm-height">
 					<div className="block-inner">
 						<a href={siteSettings.url.root} onClick={this.clearParams.bind(this)}>
 							<div className="back-button"></div>

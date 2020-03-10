@@ -30,8 +30,8 @@ class Post extends React.Component {
 	getPosts() {
 		const self = this,
 					{ filter } = this.props.post;
-		if(category) {
-			const req = siteSettings.url.api + "get_posts?filter=" + category.term_id;
+		if(filter) {
+			const req = siteSettings.url.api + "get_posts?filter=" + filter.term_id;
 			fetch(req)
 				.then(function(res) {
 					if (!res.ok) {
@@ -50,25 +50,20 @@ class Post extends React.Component {
 	renderBlocks() {
 		const self = this,
 					{ posts } = this.state,
-					{ masonry } = this.props;
+					{ masonry, post } = this.props;
 		let blockElems = [];
-		posts.forEach(function(post, i) {
+		posts.forEach(function(block, i) {
 			blockElems.push(
 				<Block
 					key={ i }
-					post={ post }
+					post={ block }
+					page={ post }
 					masonry={ masonry }
 					openOverlay={self.props.openOverlay.bind(self)} />
 			)
 		} );
 		return blockElems;
 	}
-
-	// <Block
-	// 				key={ i }
-	// 				post={ post }
-	// 				masonry={ masonry }
-	// 				openOverlay={self.openOverlay.bind(self)} />
 
 	render() {
 		const { post } = this.props,
@@ -91,7 +86,7 @@ class Post extends React.Component {
 				</article>
 				<div id="article-blocks" className="masonry">
 					<div className="grid-sizer block sm-width"></div>
-					{ this.renderBlocks() }
+					{ /*this.renderBlocks()*/ }
 				</div>
 			</div>
 		);

@@ -72,7 +72,7 @@ class Header extends React.Component {
 				<div id="site-header">
 					<h1 id="site-title">
 						<a href={url.root} onClick={this.props.closeOverlay.bind(this)}>
-							It's been<br/>
+							It’s been<br/>
 							a year.
 						</a>
 					</h1>

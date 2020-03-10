@@ -60,7 +60,7 @@
 	p {
 		margin: 0;
 	}
-	p:not(:last-of-type) {
+	p:not(:last-child) {
 		margin: 0 0 1rem 0;
 	}
 
@@ -70,10 +70,9 @@
 	}
 
 	.image-left, .image-right, {
-		height: 100%;
 		background-size: 40% auto;
 		background-repeat: no-repeat;
-		background-position: right center;
+		background-position: right top;
 		.text {
 			width: calc(60% - .5rem);
 		}
@@ -89,7 +88,7 @@
 		width: 79%;
 		img {
 			width: 100%;
-	    display: table;
+			display: table;
 		}
 	}
 	&.post {
@@ -106,7 +105,7 @@
 				font-size: 40px;
 				line-height: 50px;
 				font-family: $serif;
-				font-weight: bold;
+				font-weight: 600;
 			}
 		}
 		&.sidebar {
@@ -114,7 +113,7 @@
 				font-size: 24px;
 				line-height: 30px;
 				font-family: $sans-serif;
-				font-weight: bold;
+				font-weight: 600;
 			}
 		}
 		&.timeline {
@@ -126,14 +125,14 @@
 				margin-top: 1rem;
 				font-family: $serif;
 				font-size: 24px;
-				font-weight: bold;
+				font-weight: 600;
 			}
 			.title {
 				margin-top: .5rem;
 				font-family: $sans-serif;
 				font-size: 16px;
 				line-height: 20px;
-				font-weight: bold;
+				font-weight: 600;
 			}
 		}
 		&.quotes {
@@ -146,7 +145,7 @@
 				margin-top: .5rem;
 				font-size: 16px;
 				font-family: $sans-serif;
-				font-weight: bold;
+				font-weight: 600;
 			}
 		}
 		&.staff-stats, &.fdo-stats {
@@ -160,16 +159,16 @@
 				font-size: 16px;
 				line-height: 20px;
 				font-family: $sans-serif;
-				font-weight: bold;
+				font-weight: 600;
 			}
 		}
 	}
-	&.stat {
+	&.staff-stats {
 		.title {
 			font-size: 16px;
 			line-height: 20px;
 			font-family: $sans-serif;
-			font-weight: bold;
+			font-weight: 600;
 		}
 		.body {
 			font-size: 15px;
@@ -186,7 +185,7 @@
 	&.outtake {
 		font-family: $sans-serif;
 		.title {
-			font-weight: bold;
+			font-weight: 600;
 		}
 		.body {
 
@@ -208,8 +207,8 @@
 		&.normal-text {
 			font-weight: normal;
 		}
-		&.bold-text {
-			font-weight: bold;
+		&.600-text {
+			font-weight: 600;
 		}
 	}
 }
@@ -259,6 +258,7 @@
 	width: calc(100% - 2rem);
 	// height: calc(100% - 2rem);
 	display: table;
+	flex: 1;
 	margin: 1rem;
 	padding: 1rem;
 	border: 2px solid transparent;
@@ -301,9 +301,15 @@
 		padding: 0;
 		border-width: 0;
 	}
+	.has-image & {
+		display: flex;
+		.block-content {
+			width: 100%;
+		}
+	}
 }
 .block-title {
-	font-weight: bold;
+	font-weight: 600;
 	.small & {
 		@include smText;
 	}
@@ -317,12 +323,12 @@
 .block-sub-1 {
 	margin-top: .5rem;
 	@include smText;
-	font-weight: bold;
+	font-weight: 600;
 }
 .block-sub-2 {
 	margin-top: .5rem;
 	@include xsText;
-	font-weight: bold;
+	font-weight: 600;
 }
 
 .has-small-font-size {
@@ -364,10 +370,26 @@
 	}
 }
 
+blockquote.wp-block-quote {
+	margin: 0;
+	p:first-child {
+		position: relative;
+		&::before {
+			content: "\201C";
+			position: absolute;
+			right: 100%;
+			top: 0;
+		}
+	}
+	p:last-child::after {
+		content:  "\201D";
+	}
+}
+
 .month-label {
 	margin: 0 0 0 1rem;
 	font-family: $sans-serif;
-	font-weight: bold;
+	font-weight: 600;
 	@include mdText;
 	&:empty::before {
 		content: '&nbsp;';
@@ -378,10 +400,19 @@
 	font-family: $mono;
 	.block-inner {
 		padding: 0 0 5rem 1.5rem;
+		position: relative;
 	}
 	.back-button {
 		position: absolute;
 		left: 0rem;
 		top: .15rem;
+	}
+}
+
+
+.fdo-stats #page-blocks {
+	.block.md-width, .block.lg-width {
+		width: unset !important;
+		flex: 1;
 	}
 }

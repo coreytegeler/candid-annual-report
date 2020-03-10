@@ -38,8 +38,10 @@ class App extends React.Component {
 		});
 		window.addEventListener("resize", this.handleResize.bind(this));
 
-		const filterSlugs = Object.keys(filters);
-		this.updateParams(filterSlugs);
+		// const filterSlugs = Object.keys(filters);
+		// this.updateParams(filterSlugs);
+		const firstFilter = Object.keys(filters).shift();
+		this.updateParams([firstFilter]);
 		
 
 		window.onpopstate = (e) => {
@@ -116,7 +118,8 @@ class App extends React.Component {
 
 	renderBlocks() {
 		const self = this,
-					{ blocks, masonry, params } = this.state;
+					{ blocks, masonry, params } = this.state,
+					{ home, filters } = siteSettings;
 		let blockElems = [],
 				visibleBlocks = blocks.filter(post => params.indexOf(post.filter ? post.filter.slug : null) > -1);
 				// visibleBlocks = blocks;
@@ -124,7 +127,7 @@ class App extends React.Component {
 		
 		if(params.length == 1) {
 			const param = params[0],
-						filter = siteSettings.filters[param];
+						filter = filters[param];
 			blockElems.push(
 				<FilterBlock
 					key={ 0 }
@@ -143,6 +146,7 @@ class App extends React.Component {
 						<Block
 							key={ i+1 }
 							post={ post }
+							page={ home }
 							frozen={ frozen }
 							masonry={ masonry }
 							openOverlay={self.openOverlay.bind(self)} />
@@ -150,13 +154,6 @@ class App extends React.Component {
 				} else if(params.length == 1) {
 					const param = params[0],
 								filter = siteSettings.filters[param];
-					// blockElems.push(
-					// 	<CatBlock
-					// 		key={ i }
-					// 		cat={ cat }
-					// 		masonry={ masonry }
-					// 		clearParams={self.clearParams.bind(self)} />
-					// )
 				}
 			} );
 		}
